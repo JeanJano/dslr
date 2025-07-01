@@ -85,14 +85,21 @@ class Analysis:
 
 
     def _mean(self, feature):
-        val = self._get_col_val(feature)
+        val = self.get_col_val_float(feature)
+        
+        mean = sum(val) / len(val)
+        return mean
+
+
+    def _mean_with_filter(self, feature, house):
+        val = self.get_col_val_filter_float(feature, house)
         
         mean = sum(val) / len(val)
         return mean
 
 
     def _std(self, feature):
-        val = self._get_col_val(feature)
+        val = self.get_col_val_float(feature)
 
         mean = self._mean(feature)
         total = 0
@@ -104,7 +111,7 @@ class Analysis:
 
 
     def _min(self, feature):
-        val = self._get_col_val(feature)
+        val = self.get_col_val_float(feature)
 
         minimum = 2147483647
         for x in val:
@@ -115,7 +122,7 @@ class Analysis:
     
 
     def _max(self, feature):
-        val = self._get_col_val(feature)
+        val = self.get_col_val_float(feature)
 
         maximum = -2147483648
         for x in val:
@@ -126,7 +133,7 @@ class Analysis:
 
 
     def _quartiles(self, feature, p):
-        val = sorted(self._get_col_val(feature))
+        val = sorted(self.get_col_val_float(feature))
         n = len(val)
 
         def get_percentile(p):
@@ -143,8 +150,16 @@ class Analysis:
 
         return q
 
+    def get_means_by_house(self, house):
+        val = []
 
-    def _get_col_val(self, feature):
+        for category in Category:
+            if Category.ARITHMANCY.value <= category.value <= Category.FLYING.value:
+                val.append(self._mean_with_filter(category.value, house))
+
+        return val
+
+    def get_col_val_float(self, feature):
         val = []
         for line in self.lines:
             feat_value = line[feature]
@@ -152,6 +167,21 @@ class Analysis:
                 val.append(float(feat_value))
         return val
 
+    def get_col_val_filter_float(self, feature, house):
+        val = []
+        for line in self.lines:
+            feat_value = line[feature]
+            if feat_value != "" and line[Category.HOGWARTS_HOUSE.value] == house:
+                val.append(float(feat_value))
+        return val
+
+    def get_col_val_str(self, feature):
+        val = []
+        for line in self.lines:
+            feat_value = line[feature]
+            if feat_value != "":
+                val.append(str(feat_value))
+        return val
 
     def _format_10(self, val):
         s = str(val)
