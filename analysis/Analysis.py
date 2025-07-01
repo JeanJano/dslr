@@ -1,4 +1,5 @@
 from analysis.Category import Category
+import sys
 
 class Analysis:
     lines = []
@@ -56,18 +57,22 @@ class Analysis:
 
 
     def _read_csv(self):
-        with open("./datasets/dataset_train.csv", 'r') as f:
-            line = f.readlines()
-            i = 0
-            for l in line:
-                if i == 0:
+        try:
+            with open(self.file_path, 'r') as f:
+                line = f.readlines()
+                i = 0
+                for l in line:
+                    if i == 0:
+                        i += 1
+                        continue
+                    
+                    line_split = l.split(",")
+                    line_split[Category.FLYING.value] = line_split[Category.FLYING.value][:-1]
+                    self.lines.append(line_split)
                     i += 1
-                    continue
-                
-                line_split = l.split(",")
-                line_split[Category.FLYING.value] = line_split[Category.FLYING.value][:-1]
-                self.lines.append(line_split)
-                i += 1
+        except FileNotFoundError:
+            print("file not found:", self.file_path)
+            sys.exit(1)
 
 
     def _count(self, feature):
