@@ -4,7 +4,7 @@ def main():
 
     analysis = Analysis("./datasets/dataset_train.csv")
 
-    analysis.show()
+    analysis.describe()
     # lines = []
     # with open("./datasets/dataset_train.csv", 'r') as f:
     #     lines = f.readlines()
