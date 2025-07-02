@@ -1,5 +1,6 @@
 from analysis.Category import Category
 import sys
+import math
 
 class Analysis:
     lines = []
@@ -185,7 +186,7 @@ class Analysis:
 
         for category in Category:
             if Category.ARITHMANCY.value <= category.value <= Category.FLYING.value:
-                val.append(self._mean_with_filter(category.value, house))
+                val.append(self._std_with_filter(category.value, house))
 
         return val
 

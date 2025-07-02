@@ -13,7 +13,7 @@ def show_histogram(plot, name, x, y):
     plot.set_title(name)
     plot.set_xticks(range(len(x)))
     plot.set_xticklabels(x, rotation=45, ha='right', fontsize=8)
-    plot.set_ylim(-600, 2000)
+    plot.set_ylim(0, 300)
 
 
 def main():
@@ -37,8 +37,8 @@ if __name__ == "__main__":
     main()
 
 # les cours avec une distributions homogenes sont :
-# artihmancy
-# transfiguration
-# potions
-# Care of Magical Creatures
-# charms
+# herbology
+# defense
+# divination
+# ancient runes
+# care of magical creature
