@@ -92,10 +92,14 @@ class Analysis:
 
 
     def _mean_with_filter(self, feature, house):
-        val = self.get_col_val_filter_float(feature, house)
-        
-        mean = sum(val) / len(val)
-        return mean
+        try:
+            val = self.get_col_val_filter_float(feature, house)
+            
+            mean = sum(val) / len(val)
+            return mean
+        except ZeroDivisionError:
+            print("there is no house in the csv")
+            sys.exit(1)
 
 
     def _std(self, feature):
@@ -106,8 +110,25 @@ class Analysis:
         for x in val:
             total += (x - mean) ** 2
         
-        std = total / len(val)
+        variance = total / len(val)
+        std = math.sqrt(variance)
         return std
+
+    def _std_with_filter(self, feature, house):
+        try:
+            val = self.get_col_val_filter_float(feature, house)
+
+            mean = self._mean_with_filter(feature, house)
+            total = 0
+            for x in val:
+                total += (x - mean) ** 2
+            
+            variance = total / len(val)
+            std = math.sqrt(variance)
+            return std
+        except ZeroDivisionError:
+            print("there is no house in the csv")
+            sys.exit(1)
 
 
     def _min(self, feature):
@@ -151,6 +172,15 @@ class Analysis:
         return q
 
     def get_means_by_house(self, house):
+        val = []
+
+        for category in Category:
+            if Category.ARITHMANCY.value <= category.value <= Category.FLYING.value:
+                val.append(self._mean_with_filter(category.value, house))
+
+        return val
+    
+    def get_std_by_house(self, house):
         val = []
 
         for category in Category:
