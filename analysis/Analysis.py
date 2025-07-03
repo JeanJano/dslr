@@ -172,6 +172,7 @@ class Analysis:
 
         return q
 
+
     def get_means_by_house(self, house):
         val = []
 
