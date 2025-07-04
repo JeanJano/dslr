@@ -3,8 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 def main():
-    print("pair plot")
-
     features = [
         "Arithmancy", "Astronomy", "Herbology", "Defense Against the Dark Arts",
         "Divination", "Muggle Studies", "Ancient Runes", "History of Magic",
