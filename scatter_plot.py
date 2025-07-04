@@ -1,15 +1,7 @@
-from analysis.Analysis import Analysis
-from analysis.Category import Category
 import matplotlib.pyplot as plt
 import pandas as pd
 
 def main():
-    print("scatter plot")
-
-    # analysis = Analysis("./datasets/dataset_train.csv")
-    # arithmancy = analysis.get_col_val_float(Category.ARITHMANCY.value)
-    # astronomy = analysis.get_col_val_float(Category.ASTRONOMY.value)
-    # print(arithmancy, astronomy)
 
     df = pd.read_csv("./datasets/dataset_train.csv")
 
@@ -34,6 +26,13 @@ def main():
 
     print(best_pair[0], best_pair[1], max_corr)
 
+    plt.figure(figsize=(8, 6))
+    plt.scatter(df_features[best_pair[0]], df_features[best_pair[1]], alpha=0.6, color="purple")
+    plt.xlabel(best_pair[0])
+    plt.ylabel(best_pair[1])
+    plt.title(f"Scatter plot : {best_pair[0]} vs {best_pair[1]}")
+    plt.grid(True)
+    plt.show()
 
 if __name__ == "__main__":
     main()
