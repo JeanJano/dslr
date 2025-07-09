@@ -14,18 +14,15 @@ def load_data(path, features, label_col):
 
 def parse_matrix_block(text_block):
     lines = text_block.strip().strip('[]').split('\n')
-    # print(lines)
     data = []
     for line in lines:
         line = line.replace('[', '').replace(']', '').strip()
-        # print(line)
         datas = line.split(" ")
         row = []
         for d in datas:
             if d != "":
                 row.append(float(d))
         data.append(row)
-    # print(data)
     return data
 
 
@@ -50,11 +47,22 @@ def softmax(z):
     return exp_z / np.sum(exp_z, axis=1, keepdims=True)
 
 
-
 def predict(features_matrix, weights, biases):
     z = np.dot(features_matrix, weights) + biases
     probs = softmax(z)
     return np.argmax(probs, axis=1)
+
+
+def save_predict(prediction):
+    houses = ["Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin"]
+    with open("houses.csv", 'w') as f:
+        file = "Index, Hogwarts House\n"
+        i = 0
+        for house in prediction:
+            file += f"{i}, {houses[house]}\n"
+            i += 1
+
+        f.write(file)
 
 
 def main():
@@ -68,9 +76,10 @@ def main():
 
     features_matrix = load_data("./datasets/dataset_train.csv", features, "Hogwarts House")
     weights, biases = load_training("./model.txt")
-    # print(biases)
     prediction = predict(features_matrix, weights, biases)
     print(prediction, len(prediction))
+    save_predict(prediction)
+
 
 if __name__ == "__main__":
     main()
