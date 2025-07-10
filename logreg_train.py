@@ -1,21 +1,26 @@
 import pandas as pd
 import numpy as np
+import sys
 
 houses = ["Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin"]
 
 def load_data(path, features, label_col):
-    df = pd.read_csv(path)
-    df = df[features +[label_col]].dropna()
+    try:
+        df = pd.read_csv(path)
+        df = df[features +[label_col]].dropna()
 
-    features_matrix = df[features].to_numpy()
-    features_matrix = (features_matrix - features_matrix.mean(axis=0)) / features_matrix.std(axis=0)
+        features_matrix = df[features].to_numpy()
+        features_matrix = (features_matrix - features_matrix.mean(axis=0)) / features_matrix.std(axis=0)
 
-    y_raw = df[label_col].to_numpy()
-    labels_onehot = np.zeros((len(y_raw), len(houses)))
-    for i, h in enumerate(houses):
-        labels_onehot[:, i] = (y_raw == h).astype(int)
+        y_raw = df[label_col].to_numpy()
+        labels_onehot = np.zeros((len(y_raw), len(houses)))
+        for i, h in enumerate(houses):
+            labels_onehot[:, i] = (y_raw == h).astype(int)
 
-    return features_matrix, labels_onehot
+        return features_matrix, labels_onehot
+    except FileNotFoundError:
+        print(f"file {path} not found")
+        sys.exit(1)
 
 
 def softmax(z):
@@ -60,14 +65,17 @@ def save_training(weights, biases):
 
 
 def main():
+    if len(sys.argv) != 2:
+        print("must contain .csv as parameter")
+        sys.exit(1)
     print("train")
     features = [
         "Arithmancy", "Astronomy", "Herbology", "Defense Against the Dark Arts",
         "Divination", "Muggle Studies", "Ancient Runes", "History of Magic",
         "Transfiguration", "Potions", "Care of Magical Creatures", "Charms", "Flying"
     ]
-
-    features_matrix, labels_onehot = load_data("./datasets/dataset_train.csv", features, "Hogwarts House")
+    # "./datasets/dataset_train.csv"
+    features_matrix, labels_onehot = load_data(sys.argv[1], features, "Hogwarts House")
     weights, biases = train_logistic_regression(features_matrix, labels_onehot, lr=0.01, epochs=1000)
     save_training(weights, biases)
 

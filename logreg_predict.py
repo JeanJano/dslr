@@ -3,13 +3,17 @@ import pandas as pd
 import numpy as np
 
 def load_data(path, features, label_col):
-    df = pd.read_csv(path)
-    df = df[features +[label_col]].dropna()
+    try:
+        df = pd.read_csv(path)
+        df = df[features +[label_col]].dropna()
 
-    features_matrix = df[features].to_numpy()
-    features_matrix = (features_matrix - features_matrix.mean(axis=0)) / features_matrix.std(axis=0)
+        features_matrix = df[features].to_numpy()
+        features_matrix = (features_matrix - features_matrix.mean(axis=0)) / features_matrix.std(axis=0)
 
-    return features_matrix
+        return features_matrix
+    except FileNotFoundError:
+        print(f"file {path} not found")
+        sys.exit(1)
 
 
 def parse_matrix_block(text_block):
@@ -66,6 +70,9 @@ def save_predict(prediction):
 
 
 def main():
+    if len(sys.argv) != 3:
+        print("must contain .csv and weights train as parameter")
+        sys.exit(1)
     print("predict")
 
     features = [
@@ -73,9 +80,10 @@ def main():
         "Divination", "Muggle Studies", "Ancient Runes", "History of Magic",
         "Transfiguration", "Potions", "Care of Magical Creatures", "Charms", "Flying"
     ]
-
-    features_matrix = load_data("./datasets/dataset_train.csv", features, "Hogwarts House")
-    weights, biases = load_training("./model.txt")
+    # "./datasets/dataset_train.csv"
+    # "./model.txt"
+    features_matrix = load_data(sys.argv[1], features, "Hogwarts House")
+    weights, biases = load_training(sys.argv[2])
     prediction = predict(features_matrix, weights, biases)
     print(prediction, len(prediction))
     save_predict(prediction)
