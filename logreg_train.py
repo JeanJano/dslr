@@ -28,12 +28,6 @@ def softmax(z):
     return exp_z / np.sum(exp_z, axis=1, keepdims=True)
 
 
-def cross_entropy(y_true, y_pred):
-    epsilon = 1e-15
-    y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
-    return -np.mean(np.sum(y_true * np.log(y_pred), axis=1))
-
-
 def train_logistic_regression(features_matrix, labels_onehot, lr=0.1, epochs=1000):
     num_samples, num_features = features_matrix.shape
     num_classes = labels_onehot.shape[1]
@@ -42,19 +36,20 @@ def train_logistic_regression(features_matrix, labels_onehot, lr=0.1, epochs=100
     biases = np.zeros((1, num_classes))
 
     for epoch in range(epochs):
+        # descente de gradient
         z = np.dot(features_matrix, weights) + biases
+        # transforme les logits en probablites par classe
         y_pred = softmax(z)
 
+        # dz = erreur. c'est l'ecart entre la prediction et la verite
         dz = y_pred - labels_onehot
+        # calcul des gradients par rapport au biais et au poids
         dW = np.dot(features_matrix.T, dz) / num_samples
         db = np.sum(dz, axis=0, keepdims=True) / num_samples
 
+        # mise a jour des poids et des biais avec le learning rate
         weights -= lr * dW
         biases -= lr * db
-
-        if epoch % 100 == 0:
-            loss = cross_entropy(labels_onehot, y_pred)
-            print(f"Epoch {epoch}: loss = {loss:.4f}")
 
     return weights, biases
 
