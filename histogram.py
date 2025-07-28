@@ -55,5 +55,5 @@ def main():
 if __name__ == "__main__":
     main()
 
-# le cours avec une distributions homogenes sont :
+# le cours avec la distribution la plus homogene est:
 # care of magical creature
