@@ -11,7 +11,7 @@ class Analysis:
 
 
     def describe(self):
-        self._print_format(" ")
+        self._print_format("")
         for category in Category:
             if Category.ARITHMANCY.value <= category.value <= Category.FLYING.value:
                 self._print_format(category.name)
@@ -92,17 +92,6 @@ class Analysis:
         return mean
 
 
-    def _mean_with_filter(self, feature, house):
-        try:
-            val = self.get_col_val_filter_float(feature, house)
-            
-            mean = sum(val) / len(val)
-            return mean
-        except ZeroDivisionError:
-            print("there is no house in the csv")
-            sys.exit(1)
-
-
     def _std(self, feature):
         val = self.get_col_val_float(feature)
 
@@ -114,22 +103,6 @@ class Analysis:
         variance = total / len(val)
         std = math.sqrt(variance)
         return std
-
-    def _std_with_filter(self, feature, house):
-        try:
-            val = self.get_col_val_filter_float(feature, house)
-
-            mean = self._mean_with_filter(feature, house)
-            total = 0
-            for x in val:
-                total += (x - mean) ** 2
-            
-            variance = total / len(val)
-            std = math.sqrt(variance)
-            return std
-        except ZeroDivisionError:
-            print("there is no house in the csv")
-            sys.exit(1)
 
 
     def _min(self, feature):
@@ -173,24 +146,6 @@ class Analysis:
         return q
 
 
-    def get_means_by_house(self, house):
-        val = []
-
-        for category in Category:
-            if Category.ARITHMANCY.value <= category.value <= Category.FLYING.value:
-                val.append(self._mean_with_filter(category.value, house))
-
-        return val
-    
-    def get_std_by_house(self, house):
-        val = []
-
-        for category in Category:
-            if Category.ARITHMANCY.value <= category.value <= Category.FLYING.value:
-                val.append(self._std_with_filter(category.value, house))
-
-        return val
-
     def get_col_val_float(self, feature):
         val = []
         for line in self.lines:
@@ -199,21 +154,6 @@ class Analysis:
                 val.append(float(feat_value))
         return val
 
-    def get_col_val_filter_float(self, feature, house):
-        val = []
-        for line in self.lines:
-            feat_value = line[feature]
-            if feat_value != "" and line[Category.HOGWARTS_HOUSE.value] == house:
-                val.append(float(feat_value))
-        return val
-
-    def get_col_val_str(self, feature):
-        val = []
-        for line in self.lines:
-            feat_value = line[feature]
-            if feat_value != "":
-                val.append(str(feat_value))
-        return val
 
     def _format_10(self, val):
         s = str(val)
