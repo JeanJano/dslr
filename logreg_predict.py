@@ -29,13 +29,14 @@ def sigmoid(z):
 def predict(X, theta_all):
     m = X.shape[0]
     X_bias = np.c_[np.ones((m, 1)), X]  # add column of ones for the bias
+    print(X_bias @ theta_all.T)
     probs = sigmoid(X_bias @ theta_all.T)  # (m, k)
     preds = np.argmax(probs, axis=1)       # (m,)
     return [houses[i] for i in preds]
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: python3 predict.py <test_data.csv>")
+    if len(sys.argv) != 3:
+        print("Usage: python3 predict.py <test_data.csv> <weights file>")
         sys.exit(1)
 
     features = [
@@ -43,7 +44,7 @@ def main():
     ]
 
     test_path = sys.argv[1]
-    weights_path = "weights.txt"
+    weights_path = sys.argv[2]
 
     if not os.path.isfile(weights_path):
         print(f"Error: weights file '{weights_path}' not found. Please run the training first.")
