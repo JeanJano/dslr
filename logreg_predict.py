@@ -1,93 +1,71 @@
-import sys
 import pandas as pd
 import numpy as np
+import sys
+import os 
+ 
+houses = ["Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin"]
 
-def load_data(path, features, label_col):
+def load_and_prepare_test_data(path, features):
     try:
         df = pd.read_csv(path)
-        df = df[features +[label_col]].dropna()
+        df = df[features]
 
-        features_matrix = df[features].to_numpy()
-        features_matrix = (features_matrix - features_matrix.mean(axis=0)) / features_matrix.std(axis=0)
+        mean = df.mean(skipna=True)
+        std = df.std(skipna=True)
 
-        return features_matrix
-    except FileNotFoundError:
-        print(f"file {path} not found")
+        df_normalized = (df - mean) / std
+
+        df_normalized = df_normalized.fillna(0)
+
+        X = df_normalized.to_numpy()
+        return X, df.index.to_numpy()
+    except Exception as e:
+        print(f"Error loading or processing test data: {e}")
         sys.exit(1)
 
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
 
-def parse_matrix_block(text_block):
-    lines = text_block.strip().strip('[]').split('\n')
-    data = []
-    for line in lines:
-        line = line.replace('[', '').replace(']', '').strip()
-        datas = line.split(" ")
-        row = []
-        for d in datas:
-            if d != "":
-                row.append(float(d))
-        data.append(row)
-    return data
-
-
-def load_training(path):
-    try:
-        with open(path, 'r') as f:
-            content = f.read()
-        
-        parts = content.strip().split("|")
-
-        weights = parse_matrix_block(parts[0])
-        biases = parse_matrix_block(parts[1])
-
-        return weights, biases
-    except FileNotFoundError:
-        print("file not found:", path)
-        sys.exit(1)
-
-
-def softmax(z):
-    exp_z = np.exp(z - np.max(z, axis=1, keepdims=True))
-    return exp_z / np.sum(exp_z, axis=1, keepdims=True)
-
-
-def predict(features_matrix, weights, biases):
-    z = np.dot(features_matrix, weights) + biases
-    probs = softmax(z)
-    return np.argmax(probs, axis=1)
-
-
-def save_predict(prediction):
-    houses = ["Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin"]
-    with open("houses.csv", 'w') as f:
-        file = "Index, Hogwarts House\n"
-        i = 0
-        for house in prediction:
-            file += f"{i}, {houses[house]}\n"
-            i += 1
-
-        f.write(file)
-
+def predict(X, theta_all):
+    m = X.shape[0]
+    X_bias = np.c_[np.ones((m, 1)), X]  # add column of ones for the bias
+    probs = sigmoid(X_bias @ theta_all.T)  # (m, k)
+    preds = np.argmax(probs, axis=1)       # (m,)
+    return [houses[i] for i in preds]
 
 def main():
-    if len(sys.argv) != 3:
-        print("must contain .csv and weights train as parameter")
+    if len(sys.argv) != 2:
+        print("Usage: python3 predict.py <test_data.csv>")
         sys.exit(1)
-    print("predict")
 
     features = [
-        "Arithmancy", "Astronomy", "Herbology", "Defense Against the Dark Arts",
-        "Divination", "Muggle Studies", "Ancient Runes", "History of Magic",
-        "Transfiguration", "Potions", "Care of Magical Creatures", "Charms", "Flying"
+        "Astronomy", "Ancient Runes", "Herbology"
     ]
-    # "./datasets/dataset_train.csv"
-    # "./model.txt"
-    features_matrix = load_data(sys.argv[1], features, "Hogwarts House")
-    weights, biases = load_training(sys.argv[2])
-    prediction = predict(features_matrix, weights, biases)
-    print(prediction, len(prediction))
-    save_predict(prediction)
 
+    test_path = sys.argv[1]
+    weights_path = "weights.txt"
+
+    if not os.path.isfile(weights_path):
+        print(f"Error: weights file '{weights_path}' not found. Please run the training first.")
+        sys.exit(1)
+
+    X, ids = load_and_prepare_test_data(test_path, features)
+
+    try:
+        theta_all = np.loadtxt(weights_path, delimiter="|")
+    except Exception as e:
+        print(f"Error loading weights: {e}")
+        sys.exit(1)
+
+    predictions = predict(X, theta_all)
+
+    output_df = pd.DataFrame({
+        "Index": ids,
+        "Hogwarts House": predictions
+    })
+
+    output_df.to_csv("houses.csv", index=False)
+    print("predictions stored in \"houses.csv\"")
 
 if __name__ == "__main__":
     main()
